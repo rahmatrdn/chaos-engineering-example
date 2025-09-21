@@ -1,0 +1,37 @@
+{
+    "version": "1.0.0",
+    "title": "GET jsonplaceholder todos/1",
+    "description": "Hit endpoint GET https://jsonplaceholder.typicode.com/todos/1 dan pastikan status 200.",
+    "steady-state-hypothesis": {
+      "title": "API merespons OK",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "status-200-todos-1",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 5,
+            "verify_tls": true,
+            "url": "https://jsonplaceholder.typicode.com/todos/1",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "probe",
+        "name": "call-todos-1",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "timeout": 5,
+          "verify_tls": true,
+          "url": "https://jsonplaceholder.typicode.com/todos/1",
+          "method": "GET"
+        }
+      }
+    ],
+    "rollbacks": []
+  }

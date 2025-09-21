@@ -1,0 +1,358 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-5.15.0-53-generic-x86_64-with-glibc2.41",
+  "node": "478d3f20488d",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "MySQL timeout toxic via chaostoxi",
+    "description": "This experiment injects a timeout toxic into the MySQL proxy using chaostoxi to simulate database timeouts and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services may degrade",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-timeout-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_timeout_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_timeout",
+            "timeout": 5000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "probe",
+        "name": "create-order-expected",
+        "tolerance": [
+          201
+        ],
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mysql-timeout",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-timeout-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_timeout"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-timeout-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_timeout"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-08-27T10:15:38.363456+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:15:38 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:15:38.364166+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:15:38.368022+00:00",
+          "duration": 0.003856,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:15:38 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:15:38.368317+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:15:38.373159+00:00",
+          "duration": 0.004842,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:15:44 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:15:44.397531+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:15:44.402787+00:00",
+          "duration": 0.005256,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:15:44 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:15:44.403179+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:15:44.409164+00:00",
+          "duration": 0.005985,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-timeout-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_timeout_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_timeout",
+            "timeout": 5000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-08-27T10:15:38.373922+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:15:38.378118+00:00",
+      "duration": 0.004196
+    },
+    {
+      "activity": {
+        "type": "probe",
+        "name": "create-order-expected",
+        "tolerance": [
+          201
+        ],
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mysql-timeout",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "text/plain; charset=utf-8",
+          "X-Content-Type-Options": "nosniff",
+          "Date": "Wed, 27 Aug 2025 10:15:44 GMT",
+          "Content-Length": "34"
+        },
+        "body": "db insert err: invalid connection\n"
+      },
+      "start": "2025-08-27T10:15:39.378953+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:15:44.392566+00:00",
+      "duration": 5.013613
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-timeout-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_timeout"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-08-27T10:15:44.393013+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:15:44.396770+00:00",
+      "duration": 0.003757
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-timeout-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_timeout"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-08-27T10:15:44.410117+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:15:44.413280+00:00",
+      "duration": 0.003163
+    }
+  ],
+  "end": "2025-08-27T10:15:44.413433+00:00",
+  "duration": 6.051535129547119
+}

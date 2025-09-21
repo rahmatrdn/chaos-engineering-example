@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  chaosmysql:
+    image: mysql:8.0
+    container_name: chaosmysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Jakarta
+    volumes:
+      - chaosmysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - chaostoolkit_default
+
+  chaosmongo:
+    image: mongo:6.0
+    container_name: chaosmongo
+    volumes:
+      - chaosmongo_data:/data/db
+    networks:
+      - chaostoolkit_default
+
+  toxiproxy-seed:
+    image: curlimages/curl:8.8.0
+    container_name: toxiproxy-seed
+    volumes:
+      - ./seed.sh:/entrypoint.sh:ro
+    entrypoint: ["/entrypoint.sh"]
+    networks:
+      - chaostoolkit_default
+
+  chaosrabbitmq:
+    image: rabbitmq:3-management
+    container_name: chaosrabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+    ports:
+      - "15672:15672"   # UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - chaostoolkit_default
+
+  order-api:
+    build: ./order-api
+    container_name: order-api
+    environment:
+      # Koneksikan ke proxy Toxiproxy agar siap untuk chaos
+      MYSQL_DSN: "${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(toxiproxy:6061)/${MYSQL_DATABASE}?parseTime=true"
+      RABBIT_URL: "amqp://${RABBIT_USER}:${RABBIT_PASS}@toxiproxy:6062/"
+      RABBIT_EXCHANGE: "orders"
+      SERVICE_PORT: "8081"
+      TZ: Asia/Jakarta
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - chaostoolkit_default
+
+  notifier:
+    build: ./notifier
+    container_name: notifier
+    environment:
+      RABBIT_URL: "amqp://${RABBIT_USER}:${RABBIT_PASS}@toxiproxy:6062/"
+      RABBIT_QUEUE: "order.created"
+      MONGO_URI: "mongodb://toxiproxy:6063"
+      MONGO_DB: "app"
+      MONGO_COL: "notifications"
+      SERVICE_PORT: "8082"
+      TZ: Asia/Jakarta
+    restart: always
+    ports:
+      - "8082:8082"
+    networks:
+      - chaostoolkit_default
+
+volumes:
+  chaosmysql_data:
+  chaosmongo_data:
+
+networks:
+  chaostoolkit_default:
+    external: true

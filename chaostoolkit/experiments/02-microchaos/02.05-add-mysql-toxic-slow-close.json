@@ -1,0 +1,106 @@
+{
+    "version": "1.0.0",
+    "title": "MySQL slow_close toxic via chaostoxi",
+    "description": "This experiment injects a slow_close toxic into the MySQL proxy using chaostoxi to simulate slow connection closes and observe the impact on the microservices.",
+    "configuration": {
+        "toxiproxy_host": "toxiproxy",
+        "toxiproxy_port": 8474
+    },
+    "runtime": {
+        "rollbacks": {
+            "strategy": "always"
+        }
+    },
+    "steady-state-hypothesis": {
+        "title": "Services may degrade",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "order-api-health",
+                "tolerance": [
+                    200
+                ],
+                "provider": {
+                    "type": "http",
+                    "timeout": 15,
+                    "url": "http://order-api:8081/health",
+                    "method": "GET"
+                }
+            },
+            {
+                "type": "probe",
+                "name": "notifier-health",
+                "tolerance": [
+                    200
+                ],
+                "provider": {
+                    "type": "http",
+                    "timeout": 15,
+                    "url": "http://notifier:8082/health",
+                    "method": "GET"
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "add-slow-close-mysql",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "create_slow_connection_close_toxic",
+                "arguments": {
+                    "for_proxy": "mysql_proxy",
+                    "toxic_name": "mysql_slow_close",
+                    "delay": 5000
+                }
+            },
+            "pauses": {
+                "after": 1
+            }
+        },
+        {
+            "type": "action",
+            "name": "create-order",
+            "provider": {
+                "type": "http",
+                "timeout": 20,
+                "url": "http://order-api:8081/orders",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "arguments": {"customer":"mysql-slow-close","item":"kopi","qty":1}
+            }
+        },
+        {
+            "type": "action",
+            "name": "remove-slow-close-mysql",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "mysql_proxy",
+                    "toxic_name": "mysql_slow_close"
+                }
+            }
+        }
+    ],
+    "rollbacks": [
+        {
+            "type": "action",
+            "name": "remove-slow-close-mysql",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "mysql_proxy",
+                    "toxic_name": "mysql_slow_close"
+                }
+            }
+        }
+    ]
+}

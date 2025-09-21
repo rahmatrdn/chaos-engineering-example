@@ -1,0 +1,341 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-5.15.0-53-generic-x86_64-with-glibc2.41",
+  "node": "478d3f20488d",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "MySQL bandwidth toxic via chaostoxi",
+    "description": "This experiment injects a bandwidth degradation toxic into the MySQL proxy using chaostoxi to simulate reduced database throughput and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services healthy",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 12,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 12,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-bw-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_bandwith_degradation_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_bw",
+            "rate": 1
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "probe",
+        "name": "create-order-201",
+        "tolerance": 201,
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mysql-bandwidth-degradation",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-bw-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_bw"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-bw-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_bw"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-08-27T10:12:56.249209+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 12,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:56 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:56.250224+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:56.258864+00:00",
+          "duration": 0.00864,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 12,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:56 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:56.259250+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:56.266243+00:00",
+          "duration": 0.006993,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 12,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:57 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:57.454295+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:57.458554+00:00",
+          "duration": 0.004259,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 12,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:57 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:57.458880+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:57.466403+00:00",
+          "duration": 0.007523,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-bw-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_bandwith_degradation_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_bw",
+            "rate": 1
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-08-27T10:12:56.267279+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:56.270380+00:00",
+      "duration": 0.003101
+    },
+    {
+      "activity": {
+        "type": "probe",
+        "name": "create-order-201",
+        "tolerance": 201,
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mysql-bandwidth-degradation",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 201,
+        "headers": {
+          "Date": "Wed, 27 Aug 2025 10:12:57 GMT",
+          "Content-Length": "28",
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        "body": "{\"status\":\"created\",\"id\":24}"
+      },
+      "start": "2025-08-27T10:12:57.271067+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:57.450997+00:00",
+      "duration": 0.17993
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-bw-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_bw"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-08-27T10:12:57.451249+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:57.453801+00:00",
+      "duration": 0.002552
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-bw-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_bw"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-08-27T10:12:57.467412+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:57.471902+00:00",
+      "duration": 0.00449
+    }
+  ],
+  "end": "2025-08-27T10:12:57.472067+00:00",
+  "duration": 1.224931001663208
+}

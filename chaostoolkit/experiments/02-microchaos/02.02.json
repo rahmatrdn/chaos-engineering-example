@@ -1,0 +1,343 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-5.15.0-53-generic-x86_64-with-glibc2.41",
+  "node": "478d3f20488d",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "MySQL latency toxic via chaostoxi",
+    "description": "This experiment injects a latency toxic into the MySQL proxy using chaostoxi to simulate slow database responses and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services healthy baseline",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 8,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 8,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-latency-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_latency_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_latency",
+            "latency": 5000,
+            "jitter": 2000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "probe",
+        "name": "create-order-201",
+        "tolerance": 201,
+        "provider": {
+          "type": "http",
+          "timeout": 12,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mysql-latency",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-latency-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_latency"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-latency-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_latency"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-08-27T10:12:03.122669+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:03 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:03.123548+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:03.127953+00:00",
+          "duration": 0.004405,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:03 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:03.128228+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:03.131870+00:00",
+          "duration": 0.003642,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:12 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:12.838422+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:12.842066+00:00",
+          "duration": 0.003644,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Wed, 27 Aug 2025 10:12:12 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-08-27T10:12:12.842351+00:00",
+          "status": "succeeded",
+          "end": "2025-08-27T10:12:12.850156+00:00",
+          "duration": 0.007805,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-latency-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_latency_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_latency",
+            "latency": 5000,
+            "jitter": 2000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-08-27T10:12:03.132507+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:03.138226+00:00",
+      "duration": 0.005719
+    },
+    {
+      "activity": {
+        "type": "probe",
+        "name": "create-order-201",
+        "tolerance": 201,
+        "provider": {
+          "type": "http",
+          "timeout": 12,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mysql-latency",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 201,
+        "headers": {
+          "Date": "Wed, 27 Aug 2025 10:12:12 GMT",
+          "Content-Length": "28",
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        "body": "{\"status\":\"created\",\"id\":23}"
+      },
+      "start": "2025-08-27T10:12:04.138878+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:12.834192+00:00",
+      "duration": 8.695314
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-latency-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_latency"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-08-27T10:12:12.834433+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:12.837928+00:00",
+      "duration": 0.003495
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-latency-mysql",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mysql_proxy",
+            "toxic_name": "mysql_latency"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-08-27T10:12:12.851081+00:00",
+      "status": "succeeded",
+      "end": "2025-08-27T10:12:12.853748+00:00",
+      "duration": 0.002667
+    }
+  ],
+  "end": "2025-08-27T10:12:12.853959+00:00",
+  "duration": 9.732914209365845
+}

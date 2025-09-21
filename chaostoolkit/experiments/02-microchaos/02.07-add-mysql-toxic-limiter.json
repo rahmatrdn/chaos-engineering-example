@@ -1,0 +1,110 @@
+{
+    "version": "1.0.0",
+    "title": "MySQL limiter toxic via chaostoxi",
+    "description": "This experiment injects a limiter toxic into the MySQL proxy using chaostoxi to simulate connection limiting and observe the impact on the microservices.",
+    "configuration": {
+        "toxiproxy_host": "toxiproxy",
+        "toxiproxy_port": 8474
+    },
+    "runtime": {
+        "rollbacks": {
+            "strategy": "always"
+        }
+    },
+    "steady-state-hypothesis": {
+        "title": "Services may degrade",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "order-api-health",
+                "tolerance": [
+                    200
+                ],
+                "provider": {
+                    "type": "http",
+                    "timeout": 15,
+                    "url": "http://order-api:8081/health",
+                    "method": "GET"
+                }
+            },
+            {
+                "type": "probe",
+                "name": "notifier-health",
+                "tolerance": [
+                    200
+                ],
+                "provider": {
+                    "type": "http",
+                    "timeout": 15,
+                    "url": "http://notifier:8082/health",
+                    "method": "GET"
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "add-limiter-mysql",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "create_limiter_toxic",
+                "arguments": {
+                    "for_proxy": "mysql_proxy",
+                    "toxic_name": "mysql_limiter",
+                    "bytes_limit": 1024
+                }
+            },
+            "pauses": {
+                "after": 1
+            }
+        },
+        {
+            "type": "action",
+            "name": "create-order",
+            "provider": {
+                "type": "http",
+                "timeout": 20,
+                "url": "http://order-api:8081/orders",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "arguments": {
+                    "customer": "mysql-limiter",
+                    "item": "kopi",
+                    "qty": 1
+                }
+            }
+        },
+        {
+            "type": "action",
+            "name": "remove-limiter-mysql",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "mysql_proxy",
+                    "toxic_name": "mysql_limiter"
+                }
+            }
+        }
+    ],
+    "rollbacks": [
+        {
+            "type": "action",
+            "name": "remove-limiter-mysql",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "mysql_proxy",
+                    "toxic_name": "mysql_limiter"
+                }
+            }
+        }
+    ]
+}

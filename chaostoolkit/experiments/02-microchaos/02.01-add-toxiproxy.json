@@ -1,0 +1,37 @@
+{
+    "version": "1.0.0",
+    "title": "Happy path - services healthy via proxy",
+    "description": "This experiment validates that the order-api and notifier services are healthy and reachable via Toxiproxy, ensuring that the proxy setup does not interfere with normal service operation.",
+    "configuration": {
+        "toxiproxy_host": "toxiproxy",
+        "toxiproxy_port": 8474
+    },
+    "steady-state-hypothesis": {
+        "title": "APIs healthy",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "order-api-200",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "timeout": 5,
+                    "url": "http://order-api:8081/health",
+                    "method": "GET"
+                }
+            },
+            {
+                "type": "probe",
+                "name": "notifier-200",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "timeout": 5,
+                    "url": "http://notifier:8082/health",
+                    "method": "GET"
+                }
+            }
+        ]
+    },
+    "method": []
+}

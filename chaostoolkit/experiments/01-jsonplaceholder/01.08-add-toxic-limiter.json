@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "title": "todos/1 via Toxiproxy - limiter",
+  "description": "Create a Toxiproxy proxy for jsonplaceholder and inject a limiter toxic to simulate bandwidth limiting. This experiment verifies that the API is still reachable (returns 200) even when artificial bandwidth limiting is introduced via Toxiproxy.",
+  "configuration": {
+    "toxiproxy_host": "toxiproxy",
+    "toxiproxy_port": 8474
+  },
+  "steady-state-hypothesis": {
+    "title": "API responds 200 via proxy",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "status-200-todos-1-via-proxy",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "timeout": 5,
+          "verify_tls": true,
+          "url": "https://jsonplaceholder.typicode.com/todos/1",
+          "method": "GET"
+        }
+      }
+    ]
+  },
+  "method": [
+    {
+      "type": "action",
+      "name": "create-proxy",
+      "provider": {
+        "type": "python",
+        "module": "chaostoxi.proxy.actions",
+        "func": "create_proxy",
+        "arguments": {
+          "proxy_name": "jsonplaceholder_proxy_lim",
+          "listen_port": 6060,
+          "upstream_host": "jsonplaceholder.typicode.com",
+          "upstream_port": 80
+        }
+      },
+      "pauses": {
+        "after": 1
+      }
+    },
+    {
+      "type": "action",
+      "name": "add-limiter-toxic",
+      "provider": {
+        "type": "python",
+        "module": "chaostoxi.toxic.actions",
+        "func": "create_limiter_toxic",
+        "arguments": {
+          "for_proxy": "jsonplaceholder_proxy_lim",
+          "toxic_name": "limit_down",
+          "bytes_limit": 1024
+        }
+      },
+      "pauses": {
+        "after": 1
+      }
+    },
+    {
+      "type": "probe",
+      "name": "call-through-proxy",
+      "tolerance": 200,
+      "provider": {
+        "type": "http",
+        "timeout": 10,
+        "verify_tls": false,
+        "url": "http://toxiproxy:6060/todos/1",
+        "method": "GET"
+      }
+    }
+  ],
+  "rollbacks": [
+    {
+      "type": "action",
+      "name": "remove-limiter",
+      "provider": {
+        "type": "python",
+        "module": "chaostoxi.toxic.actions",
+        "func": "delete_toxic",
+        "arguments": {
+          "for_proxy": "jsonplaceholder_proxy_lim",
+          "toxic_name": "limit_down"
+        }
+      }
+    },
+    {
+      "type": "action",
+      "name": "delete-proxy",
+      "provider": {
+        "type": "python",
+        "module": "chaostoxi.proxy.actions",
+        "func": "delete_proxy",
+        "arguments": {
+          "proxy_name": "jsonplaceholder_proxy_lim"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:latest
+    container_name: toxiproxy
+    ports:
+      - "8474:8474"   # REST API Toxiproxy (management)
+      - "6060-6070:6060-6070" # Port range for proxies
+      # Port proxy akan terbuka sesuai yang kita buat (contoh: 8666)
+
+  chaostoolkit:
+    build:
+      context: ./
+    container_name: chaostoolkit
+    working_dir: /experiments
+    volumes:
+      - ./experiments:/experiments
+    # Biarkan container hidup agar bisa eksekusi perintah interaktif
+    command: [ "bash", "-lc", "echo 'Chaos container ready'; tail -f /dev/null" ]
