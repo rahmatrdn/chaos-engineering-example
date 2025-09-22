@@ -1,0 +1,103 @@
+{
+    "version": "1.0.0",
+    "title": "RabbitMQ latency toxic via chaostoxix",
+    "description": "This experiment injects artificial network latency into the RabbitMQ connection using Toxiproxy, in order to observe and analyze the impact on the order-api and notifier microservices. The goal is to test the resilience of the system when the database experiences high latency.",
+    "configuration": {
+        "toxiproxy_host": "toxiproxy",
+        "toxiproxy_port": 8474
+    },
+    "runtime": {
+        "rollbacks": {
+            "strategy": "always"
+        }
+    },
+    "steady-state-hypothesis": {
+        "title": "Services healthy baseline",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "order-api-200",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "timeout": 8,
+                    "url": "http://order-api:8081/health",
+                    "method": "GET"
+                }
+            },
+            {
+                "type": "probe",
+                "name": "notifier-200",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "timeout": 8,
+                    "url": "http://notifier:8082/health",
+                    "method": "GET"
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "add-latency-rabbitmq",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "create_latency_toxic",
+                "arguments": {
+                    "for_proxy": "rabbitmq_proxy",
+                    "toxic_name": "rabbitmq_latency",
+                    "latency":3000,
+                    "jitter": 2000
+                }
+            },
+            "pauses": {
+                "after": 1
+            }
+        },
+        {
+            "type": "action",
+            "name": "create-order",
+            "provider": {
+                "type": "http",
+                "timeout": 12,
+                "url": "http://order-api:8081/orders",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "arguments": {"customer":"rabbitmq-latency","item":"kopi","qty":1}
+            }
+        },
+        {
+            "type": "action",
+            "name": "remove-latency-rabbitmq",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "rabbitmq_proxy",
+                    "toxic_name": "rabbitmq_latency"
+                }
+            }
+        }
+    ],
+    "rollbacks": [
+        {
+            "type": "action",
+            "name": "remove-latency-rabbitmq",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "rabbitmq_proxy",
+                    "toxic_name": "rabbitmq_latency"
+                }
+            }
+        }
+    ]
+}

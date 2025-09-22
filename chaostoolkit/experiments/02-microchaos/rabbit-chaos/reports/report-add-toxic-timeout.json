@@ -1,0 +1,323 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-6.15.11-orbstack-00539-g9885ebd8e3f4-x86_64-with-glibc2.41",
+  "node": "338331afb042",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "RabbitMQ timeout toxic via chaostoxi",
+    "description": "This experiment injects a timeout toxic into the RabbitMQ proxy using chaostoxi to simulate database timeouts and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services may degrade",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-timeout-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_timeout_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_timeout",
+            "timeout": 5000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "rabbitmq-timeout",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-timeout-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_timeout"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-timeout-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_timeout"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-09-22T09:13:45.246363+00:00",
+  "status": "completed",
+  "deviated": true,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:13:45 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:13:45.248663+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:13:45.266801+00:00",
+          "duration": 0.018138,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:13:45 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:13:45.267607+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:13:45.310375+00:00",
+          "duration": 0.042768,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": false,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 500,
+            "headers": {
+              "Content-Type": "text/plain; charset=utf-8",
+              "X-Content-Type-Options": "nosniff",
+              "Date": "Mon, 22 Sep 2025 09:13:46 GMT",
+              "Content-Length": "14"
+            },
+            "body": "rabbitmq down\n"
+          },
+          "start": "2025-09-22T09:13:46.434363+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:13:46.445441+00:00",
+          "duration": 0.011078,
+          "tolerance_met": false
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-timeout-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_timeout_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_timeout",
+            "timeout": 5000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T09:13:45.312286+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:13:45.325451+00:00",
+      "duration": 0.013165
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "rabbitmq-timeout",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 201,
+        "headers": {
+          "Date": "Mon, 22 Sep 2025 09:13:46 GMT",
+          "Content-Length": "28",
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        "body": "{\"status\":\"created\",\"id\":17}"
+      },
+      "start": "2025-09-22T09:13:46.328586+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:13:46.421039+00:00",
+      "duration": 0.092453
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-timeout-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_timeout"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T09:13:46.422568+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:13:46.431086+00:00",
+      "duration": 0.008518
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-timeout-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_timeout"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-09-22T09:13:46.448989+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:13:46.456171+00:00",
+      "duration": 0.007182
+    }
+  ],
+  "end": "2025-09-22T09:13:46.457014+00:00",
+  "duration": 1.213942527770996
+}

@@ -5,10 +5,10 @@ The "Toxic Latency" experiment is designed to test the resilience of the MongoDB
 
 ```bash
 -- Run and Generate Report
-chaos run add-toxic-bandwidth-degradation.json --journal-path=reports/report-add-toxic-bandwidth-degradation.json
+chaos run add-toxic-latency.json --journal-path=reports/report-add-toxic-latency.json
 
 -- Convert report to PDF
-chaos report --export-format=pdf reports/report-add-toxic-bandwidth-degradation.json reports/report-add-toxic-latency.pdf
+chaos report --export-format=pdf reports/report-add-toxic-latency.json reports/report-add-toxic-latency.pdf
 ```
 
 ### Toxic Bandwidth Degradation

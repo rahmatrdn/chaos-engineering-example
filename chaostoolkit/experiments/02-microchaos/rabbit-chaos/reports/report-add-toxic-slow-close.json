@@ -1,0 +1,212 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-6.15.11-orbstack-00539-g9885ebd8e3f4-x86_64-with-glibc2.41",
+  "node": "338331afb042",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "RabbitMQ slow_close toxic via chaostoxi",
+    "description": "This experiment injects a slow_close toxic into the RabbitMQ proxy using chaostoxi to simulate slow connection closes and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services may degrade",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-slow-close-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_slow_connection_close_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_slow_close",
+            "delay": 5000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "rabbitmq-slow-close",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-slow-close-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_slow_close"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-slow-close-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_slow_close"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-09-22T09:20:35.181275+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": false,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:20:35 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:20:35.183673+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:20:35.189881+00:00",
+          "duration": 0.006208,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 500,
+            "headers": {
+              "Content-Type": "text/plain; charset=utf-8",
+              "X-Content-Type-Options": "nosniff",
+              "Date": "Mon, 22 Sep 2025 09:20:35 GMT",
+              "Content-Length": "14"
+            },
+            "body": "rabbitmq down\n"
+          },
+          "start": "2025-09-22T09:20:35.191324+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:20:35.201210+00:00",
+          "duration": 0.009886,
+          "tolerance_met": false
+        }
+      ]
+    },
+    "after": null,
+    "during": []
+  },
+  "run": [],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-slow-close-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_slow_close"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-09-22T09:20:35.204035+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:20:35.208135+00:00",
+      "duration": 0.0041
+    }
+  ],
+  "end": "2025-09-22T09:20:35.208584+00:00",
+  "duration": 0.0316007137298584
+}

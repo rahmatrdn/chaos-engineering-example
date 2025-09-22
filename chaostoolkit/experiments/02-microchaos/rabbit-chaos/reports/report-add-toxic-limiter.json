@@ -1,0 +1,351 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-6.15.11-orbstack-00539-g9885ebd8e3f4-x86_64-with-glibc2.41",
+  "node": "338331afb042",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "RabbitMQ limiter toxic via chaostoxi",
+    "description": "This experiment injects a limiter toxic into the RabbitMQ proxy using chaostoxi to simulate connection limiting and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services may degrade",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-limiter-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_limiter_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_limiter",
+            "bytes_limit": 1024
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "rabbitmq-limiter",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-limiter-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_limiter"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-limiter-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_limiter"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-09-22T09:30:35.531838+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:30:35 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:30:35.533444+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:30:35.541112+00:00",
+          "duration": 0.007668,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:30:35 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:30:35.541727+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:30:35.555526+00:00",
+          "duration": 0.013799,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:30:36 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:30:36.603027+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:30:36.607622+00:00",
+          "duration": 0.004595,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 09:30:36 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T09:30:36.608527+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T09:30:36.624981+00:00",
+          "duration": 0.016454,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-limiter-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_limiter_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_limiter",
+            "bytes_limit": 1024
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T09:30:35.556597+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:30:35.566682+00:00",
+      "duration": 0.010085
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "rabbitmq-limiter",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 201,
+        "headers": {
+          "Date": "Mon, 22 Sep 2025 09:30:36 GMT",
+          "Content-Length": "28",
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        "body": "{\"status\":\"created\",\"id\":19}"
+      },
+      "start": "2025-09-22T09:30:36.570800+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:30:36.598123+00:00",
+      "duration": 0.027323
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-limiter-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_limiter"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T09:30:36.598812+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:30:36.601896+00:00",
+      "duration": 0.003084
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-limiter-rabbitmq",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "rabbitmq_proxy",
+            "toxic_name": "rabbitmq_limiter"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-09-22T09:30:36.627359+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T09:30:36.630456+00:00",
+      "duration": 0.003097
+    }
+  ],
+  "end": "2025-09-22T09:30:36.630728+00:00",
+  "duration": 1.1009130477905273
+}
