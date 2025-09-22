@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -23,6 +24,8 @@ func main() {
 	mysqlDSN := getenv("MYSQL_DSN", "app:app@tcp(mysql:3306)/app?parseTime=true")
 	rabbitURL := getenv("RABBIT_URL", "amqp://guest:guest@rabbitmq:5672/")
 	exchange := getenv("RABBIT_EXCHANGE", "orders")
+
+	fmt.Println("Service start")
 
 	db, err := sql.Open("mysql", mysqlDSN)
 	must(err)
@@ -66,6 +69,7 @@ func main() {
 	})
 
 	http.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Request create order start ...")
 		if r.Method != http.MethodPost {
 			http.Error(w, "POST only", 405)
 			return
@@ -75,12 +79,14 @@ func main() {
 			http.Error(w, "bad json", 400)
 			return
 		}
+		startReq := time.Now()
 		res, err := db.Exec("INSERT INTO orders (customer, item, qty, created_at) VALUES (?,?,?,?)",
 			o.Customer, o.Item, o.Qty, time.Now())
 		if err != nil {
 			http.Error(w, "db insert err: "+err.Error(), 500)
 			return
 		}
+
 		id, _ := res.LastInsertId()
 		body, _ := json.Marshal(map[string]any{
 			"id":       id,
@@ -88,6 +94,7 @@ func main() {
 			"item":     o.Item,
 			"qty":      o.Qty,
 		})
+		startPublish := time.Now()
 		if err := ch.Publish(exchange, "order.created",
 			false, false, amqp.Publishing{
 				ContentType: "application/json",
@@ -96,6 +103,12 @@ func main() {
 			http.Error(w, "publish err: "+err.Error(), 500)
 			return
 		}
+
+		publishDuration := time.Since(startPublish)
+		totalDuration := time.Since(startReq)
+		fmt.Printf("Successfully sent to RabbitMQ order.created in %vms\n", publishDuration.Milliseconds())
+		log.Printf("Create order request completed in %dms\n", totalDuration.Milliseconds())
+
 		w.WriteHeader(201)
 		w.Write([]byte(`{"status":"created","id":` + itoa(id) + `}`))
 	})

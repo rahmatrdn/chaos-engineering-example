@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -60,20 +61,27 @@ func main() {
 	})
 
 	go func() {
+		log.Println("Queue Start ...")
 		msgs, err := ch.Consume(queue, "", true, false, false, false, nil)
 		must(err)
 		for m := range msgs {
+			queueStart := time.Now()
 			var any map[string]any
 			if err := json.Unmarshal(m.Body, &any); err != nil {
 				log.Printf("bad message: %v", err)
 				continue
 			}
 			any["received_at"] = time.Now()
+			start := time.Now()
 			if _, err := col.InsertOne(context.Background(), any); err != nil {
 				log.Printf("mongo insert err: %v", err)
 			} else {
+				duration := time.Since(start)
 				log.Printf("notification stored: %v", any)
+				fmt.Printf("Data successfully inserted into MongoDB in %d ms\n", duration.Milliseconds())
 			}
+			queueDuration := time.Since(queueStart)
+			log.Println("Queue processing time:", queueDuration.Milliseconds(), "ms")
 		}
 	}()
 

@@ -53,8 +53,8 @@
                 "arguments": {
                     "for_proxy": "rabbitmq_proxy",
                     "toxic_name": "rabbitmq_slicer",
-                    "average_size": 32,
-                    "size_variation": 16,
+                    "average_size": 50,
+                    "size_variation": 10,
                     "delay": 0
                 }
             },

@@ -53,7 +53,7 @@
           "arguments": {
             "for_proxy": "rabbitmq_proxy",
             "toxic_name": "rabbitmq_latency",
-            "latency": 3000,
+            "latency": 30000,
             "jitter": 2000
           }
         },
@@ -110,7 +110,7 @@
     ],
     "dry": null
   },
-  "start": "2025-09-22T09:02:44.557603+00:00",
+  "start": "2025-09-22T10:43:01.426785+00:00",
   "status": "completed",
   "deviated": false,
   "steady_states": {
@@ -132,16 +132,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:02:44 GMT",
+              "Date": "Mon, 22 Sep 2025 10:43:01 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:02:44.560680+00:00",
+          "start": "2025-09-22T10:43:01.428089+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:02:44.578815+00:00",
-          "duration": 0.018135,
+          "end": "2025-09-22T10:43:01.441370+00:00",
+          "duration": 0.013281,
           "tolerance_met": true
         },
         {
@@ -159,16 +159,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:02:44 GMT",
+              "Date": "Mon, 22 Sep 2025 10:43:01 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:02:44.579549+00:00",
+          "start": "2025-09-22T10:43:01.442006+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:02:44.606314+00:00",
-          "duration": 0.026765,
+          "end": "2025-09-22T10:43:01.448228+00:00",
+          "duration": 0.006222,
           "tolerance_met": true
         }
       ]
@@ -191,16 +191,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:02:45 GMT",
+              "Date": "Mon, 22 Sep 2025 10:43:02 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:02:45.775487+00:00",
+          "start": "2025-09-22T10:43:02.511662+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:02:45.786709+00:00",
-          "duration": 0.011222,
+          "end": "2025-09-22T10:43:02.516708+00:00",
+          "duration": 0.005046,
           "tolerance_met": true
         },
         {
@@ -218,16 +218,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:02:45 GMT",
+              "Date": "Mon, 22 Sep 2025 10:43:02 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:02:45.787739+00:00",
+          "start": "2025-09-22T10:43:02.517660+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:02:45.817443+00:00",
-          "duration": 0.029704,
+          "end": "2025-09-22T10:43:02.521585+00:00",
+          "duration": 0.003925,
           "tolerance_met": true
         }
       ]
@@ -246,7 +246,7 @@
           "arguments": {
             "for_proxy": "rabbitmq_proxy",
             "toxic_name": "rabbitmq_latency",
-            "latency": 3000,
+            "latency": 30000,
             "jitter": 2000
           }
         },
@@ -255,10 +255,10 @@
         }
       },
       "output": true,
-      "start": "2025-09-22T09:02:44.608092+00:00",
+      "start": "2025-09-22T10:43:01.449414+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:02:44.655975+00:00",
-      "duration": 0.047883
+      "end": "2025-09-22T10:43:01.453609+00:00",
+      "duration": 0.004195
     },
     {
       "activity": {
@@ -282,16 +282,16 @@
       "output": {
         "status": 201,
         "headers": {
-          "Date": "Mon, 22 Sep 2025 09:02:45 GMT",
+          "Date": "Mon, 22 Sep 2025 10:43:02 GMT",
           "Content-Length": "28",
           "Content-Type": "text/plain; charset=utf-8"
         },
-        "body": "{\"status\":\"created\",\"id\":15}"
+        "body": "{\"status\":\"created\",\"id\":39}"
       },
-      "start": "2025-09-22T09:02:45.658177+00:00",
+      "start": "2025-09-22T10:43:02.456420+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:02:45.766244+00:00",
-      "duration": 0.108067
+      "end": "2025-09-22T10:43:02.505017+00:00",
+      "duration": 0.048597
     },
     {
       "activity": {
@@ -308,10 +308,10 @@
         }
       },
       "output": true,
-      "start": "2025-09-22T09:02:45.766972+00:00",
+      "start": "2025-09-22T10:43:02.506374+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:02:45.773053+00:00",
-      "duration": 0.006081
+      "end": "2025-09-22T10:43:02.510259+00:00",
+      "duration": 0.003885
     }
   ],
   "rollbacks": [
@@ -330,12 +330,12 @@
         }
       },
       "output": false,
-      "start": "2025-09-22T09:02:45.821961+00:00",
+      "start": "2025-09-22T10:43:02.523155+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:02:45.827846+00:00",
-      "duration": 0.005885
+      "end": "2025-09-22T10:43:02.525723+00:00",
+      "duration": 0.002568
     }
   ],
-  "end": "2025-09-22T09:02:45.828846+00:00",
-  "duration": 1.2743442058563232
+  "end": "2025-09-22T10:43:02.525983+00:00",
+  "duration": 1.1006767749786377
 }

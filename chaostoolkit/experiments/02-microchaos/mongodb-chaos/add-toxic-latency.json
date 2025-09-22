@@ -49,7 +49,7 @@
                 "arguments": {
                     "for_proxy": "mongo_proxy",
                     "toxic_name": "mongo_latency",
-                    "latency":3000,
+                    "latency": 6000,
                     "jitter": 2000
                 }
             },
@@ -68,7 +68,11 @@
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "arguments": {"customer":"mongo-latency","item":"kopi","qty":1}
+                "arguments": {
+                    "customer": "mongo-latency",
+                    "item": "kopi",
+                    "qty": 1
+                }
             }
         },
         {

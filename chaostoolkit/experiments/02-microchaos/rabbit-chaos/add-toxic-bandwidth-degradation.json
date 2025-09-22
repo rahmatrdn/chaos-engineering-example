@@ -49,7 +49,7 @@
                 "arguments": {
                     "for_proxy": "rabbitmq_proxy",
                     "toxic_name": "rabbitmq_bw",
-                    "rate": 1
+                    "rate": 2
                 }
             },
             "pauses": {
