@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "title": "MySQL latency toxic via chaostoxi",
-    "description": "This experiment injects a latency toxic into the MySQL proxy using chaostoxi to simulate slow database responses and observe the impact on the microservices.",
+    "title": "MongoDB latency toxic via chaostoxix",
+    "description": "This experiment injects artificial network latency into the MongoDB connection using Toxiproxy, in order to observe and analyze the impact on the order-api and notifier microservices. The goal is to test the resilience of the system when the database experiences high latency.",
     "configuration": {
         "toxiproxy_host": "toxiproxy",
         "toxiproxy_port": 8474
@@ -15,40 +15,24 @@
         "title": "Services healthy baseline",
         "probes": [
             {
-                // type: Jenis aktivitas, di sini "probe" artinya melakukan pengecekan/observasi kondisi sistem
                 "type": "probe",
-                // name: Nama probe, digunakan sebagai identitas unik untuk probe ini
                 "name": "order-api-200",
-                // tolerance: Nilai toleransi, di sini berarti status HTTP 200 dianggap sebagai kondisi sehat
                 "tolerance": 200,
-                // provider: Konfigurasi bagaimana probe ini dijalankan
                 "provider": {
-                    // type: Jenis provider, "http" artinya probe ini akan melakukan request HTTP
                     "type": "http",
-                    // timeout: Batas waktu maksimal (dalam detik) untuk menunggu respons dari endpoint
                     "timeout": 8,
-                    // url: Alamat endpoint yang akan dicek kesehatannya
                     "url": "http://order-api:8081/health",
-                    // method: Metode HTTP yang digunakan, di sini "GET" untuk mengambil status
                     "method": "GET"
                 }
             },
             {
-                // type: Jenis aktivitas, di sini "probe" untuk observasi service lain
                 "type": "probe",
-                // name: Nama probe untuk service notifier
                 "name": "notifier-200",
-                // tolerance: Status HTTP 200 dianggap sehat
                 "tolerance": 200,
-                // provider: Konfigurasi eksekusi probe
                 "provider": {
-                    // type: Jenis provider, "http" untuk request HTTP
                     "type": "http",
-                    // timeout: Batas waktu maksimal menunggu respons (detik)
                     "timeout": 8,
-                    // url: Endpoint health milik service notifier
                     "url": "http://notifier:8082/health",
-                    // method: Metode HTTP yang digunakan, "GET"
                     "method": "GET"
                 }
             }
@@ -57,14 +41,14 @@
     "method": [
         {
             "type": "action",
-            "name": "add-latency-mysql",
+            "name": "add-latency-mongodb",
             "provider": {
                 "type": "python",
                 "module": "chaostoxi.toxic.actions",
                 "func": "create_latency_toxic",
                 "arguments": {
-                    "for_proxy": "mysql_proxy",
-                    "toxic_name": "mysql_latency",
+                    "for_proxy": "mongo_proxy",
+                    "toxic_name": "mongo_latency",
                     "latency":3000,
                     "jitter": 2000
                 }
@@ -84,19 +68,19 @@
                 "headers": {
                     "Content-Type": "application/json"
                 },
-                "arguments": {"customer":"mysql-latency","item":"kopi","qty":1}
+                "arguments": {"customer":"mongo-latency","item":"kopi","qty":1}
             }
         },
         {
             "type": "action",
-            "name": "remove-latency-mysql",
+            "name": "remove-latency-mongo",
             "provider": {
                 "type": "python",
                 "module": "chaostoxi.toxic.actions",
                 "func": "delete_toxic",
                 "arguments": {
-                    "for_proxy": "mysql_proxy",
-                    "toxic_name": "mysql_latency"
+                    "for_proxy": "mongo_proxy",
+                    "toxic_name": "mongo_latency"
                 }
             }
         }
@@ -104,14 +88,14 @@
     "rollbacks": [
         {
             "type": "action",
-            "name": "remove-latency-mysql",
+            "name": "remove-latency-mongo",
             "provider": {
                 "type": "python",
                 "module": "chaostoxi.toxic.actions",
                 "func": "delete_toxic",
                 "arguments": {
-                    "for_proxy": "mysql_proxy",
-                    "toxic_name": "mysql_latency"
+                    "for_proxy": "mongo_proxy",
+                    "toxic_name": "mongo_latency"
                 }
             }
         }

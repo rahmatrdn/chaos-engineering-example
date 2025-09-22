@@ -1,0 +1,341 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-6.15.11-orbstack-00539-g9885ebd8e3f4-x86_64-with-glibc2.41",
+  "node": "338331afb042",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "MongoDB latency toxic via chaostoxix",
+    "description": "This experiment injects artificial network latency into the MongoDB connection using Toxiproxy, in order to observe and analyze the impact on the order-api and notifier microservices. The goal is to test the resilience of the system when the database experiences high latency.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services healthy baseline",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 8,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 8,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-latency-mongodb",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_latency_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_latency",
+            "latency": 3000,
+            "jitter": 2000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 12,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mongo-latency",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-latency-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_latency"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-latency-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_latency"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-09-22T07:56:58.655241+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 07:56:58 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T07:56:58.658819+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T07:56:58.686176+00:00",
+          "duration": 0.027357,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 07:56:58 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T07:56:58.687555+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T07:56:58.743788+00:00",
+          "duration": 0.056233,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 07:57:00 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T07:57:00.093903+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T07:57:00.101863+00:00",
+          "duration": 0.00796,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 8,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 07:57:00 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T07:57:00.103297+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T07:57:00.112401+00:00",
+          "duration": 0.009104,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-latency-mongodb",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_latency_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_latency",
+            "latency": 3000,
+            "jitter": 2000
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T07:56:58.747329+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T07:56:58.771649+00:00",
+      "duration": 0.02432
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 12,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mongo-latency",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 201,
+        "headers": {
+          "Date": "Mon, 22 Sep 2025 07:57:00 GMT",
+          "Content-Length": "27",
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        "body": "{\"status\":\"created\",\"id\":8}"
+      },
+      "start": "2025-09-22T07:56:59.776732+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T07:57:00.080816+00:00",
+      "duration": 0.304084
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-latency-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_latency"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T07:57:00.082580+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T07:57:00.091081+00:00",
+      "duration": 0.008501
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-latency-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_latency"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-09-22T07:57:00.116530+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T07:57:00.125541+00:00",
+      "duration": 0.009011
+    }
+  ],
+  "end": "2025-09-22T07:57:00.126359+00:00",
+  "duration": 1.4755029678344727
+}

@@ -1,0 +1,355 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Linux-6.15.11-orbstack-00539-g9885ebd8e3f4-x86_64-with-glibc2.41",
+  "node": "338331afb042",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "MongoDB slicer toxic via chaostoxi",
+    "description": "This experiment injects a slicer toxic into the MongoDB proxy using chaostoxi to simulate packet fragmentation and observe the impact on the microservices.",
+    "configuration": {
+      "toxiproxy_host": "toxiproxy",
+      "toxiproxy_port": 8474
+    },
+    "runtime": {
+      "rollbacks": {
+        "strategy": "always"
+      }
+    },
+    "steady-state-hypothesis": {
+      "title": "Services may degrade",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "order-api-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://order-api:8081/health",
+            "method": "GET"
+          }
+        },
+        {
+          "type": "probe",
+          "name": "notifier-health",
+          "tolerance": [
+            200
+          ],
+          "provider": {
+            "type": "http",
+            "timeout": 15,
+            "url": "http://notifier:8082/health",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "add-slicer-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_slicer_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_slicer",
+            "average_size": 32,
+            "size_variation": 16,
+            "delay": 0
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mongo-slicer",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      {
+        "type": "action",
+        "name": "remove-slicer-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_slicer"
+          }
+        }
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "remove-slicer-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_slicer"
+          }
+        }
+      }
+    ],
+    "dry": null
+  },
+  "start": "2025-09-22T08:54:36.336279+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 08:54:36 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T08:54:36.337984+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T08:54:36.360545+00:00",
+          "duration": 0.022561,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 08:54:36 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T08:54:36.361941+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T08:54:36.382794+00:00",
+          "duration": 0.020853,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "order-api-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://order-api:8081/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 08:54:37 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T08:54:37.482522+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T08:54:37.489440+00:00",
+          "duration": 0.006918,
+          "tolerance_met": true
+        },
+        {
+          "activity": {
+            "type": "probe",
+            "name": "notifier-health",
+            "tolerance": [
+              200
+            ],
+            "provider": {
+              "type": "http",
+              "timeout": 15,
+              "url": "http://notifier:8082/health",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Date": "Mon, 22 Sep 2025 08:54:37 GMT",
+              "Content-Length": "2",
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": "OK"
+          },
+          "start": "2025-09-22T08:54:37.490601+00:00",
+          "status": "succeeded",
+          "end": "2025-09-22T08:54:37.495551+00:00",
+          "duration": 0.00495,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "add-slicer-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "create_slicer_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_slicer",
+            "average_size": 32,
+            "size_variation": 16,
+            "delay": 0
+          }
+        },
+        "pauses": {
+          "after": 1
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T08:54:36.384489+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T08:54:36.404890+00:00",
+      "duration": 0.020401
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "create-order",
+        "provider": {
+          "type": "http",
+          "timeout": 20,
+          "url": "http://order-api:8081/orders",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "arguments": {
+            "customer": "mongo-slicer",
+            "item": "kopi",
+            "qty": 1
+          }
+        }
+      },
+      "output": {
+        "status": 201,
+        "headers": {
+          "Date": "Mon, 22 Sep 2025 08:54:37 GMT",
+          "Content-Length": "28",
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        "body": "{\"status\":\"created\",\"id\":13}"
+      },
+      "start": "2025-09-22T08:54:37.406321+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T08:54:37.475299+00:00",
+      "duration": 0.068978
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-slicer-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_slicer"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-09-22T08:54:37.475788+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T08:54:37.479887+00:00",
+      "duration": 0.004099
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "remove-slicer-mongo",
+        "provider": {
+          "type": "python",
+          "module": "chaostoxi.toxic.actions",
+          "func": "delete_toxic",
+          "arguments": {
+            "for_proxy": "mongo_proxy",
+            "toxic_name": "mongo_slicer"
+          }
+        }
+      },
+      "output": false,
+      "start": "2025-09-22T08:54:37.497154+00:00",
+      "status": "succeeded",
+      "end": "2025-09-22T08:54:37.499688+00:00",
+      "duration": 0.002534
+    }
+  ],
+  "end": "2025-09-22T08:54:37.499962+00:00",
+  "duration": 1.1660938262939453
+}

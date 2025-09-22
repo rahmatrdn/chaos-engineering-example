@@ -1,0 +1,102 @@
+{
+    "version": "1.0.0",
+    "title": "MongoDB bandwidth toxic via chaostoxi",
+    "description": "This experiment injects a bandwidth degradation toxic into the MongoDB proxy using chaostoxi to simulate reduced database throughput and observe the impact on the microservices.",
+    "configuration": {
+        "toxiproxy_host": "toxiproxy",
+        "toxiproxy_port": 8474
+    },
+    "runtime": {
+        "rollbacks": {
+            "strategy": "always"
+        }
+    },
+    "steady-state-hypothesis": {
+        "title": "Services healthy",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "order-api-200",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "timeout": 12,
+                    "url": "http://order-api:8081/health",
+                    "method": "GET"
+                }
+            },
+            {
+                "type": "probe",
+                "name": "notifier-200",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "timeout": 12,
+                    "url": "http://notifier:8082/health",
+                    "method": "GET"
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "add-bw-mongo",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "create_bandwith_degradation_toxic",
+                "arguments": {
+                    "for_proxy": "mongo_proxy",
+                    "toxic_name": "mongo_bw",
+                    "rate": 1
+                }
+            },
+            "pauses": {
+                "after": 1
+            }
+        },
+        {
+            "type": "action",
+            "name": "create-order",
+            "provider": {
+                "type": "http",
+                "timeout": 20,
+                "url": "http://order-api:8081/orders",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "arguments": {"customer":"mongo-bandwidth-degradation","item":"kopi","qty":1}
+            }
+        },
+        {
+            "type": "action",
+            "name": "remove-bw-mongo",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "mongo_proxy",
+                    "toxic_name": "mongo_bw"
+                }
+            }
+        }
+    ],
+    "rollbacks": [
+        {
+            "type": "action",
+            "name": "remove-bw-mongo",
+            "provider": {
+                "type": "python",
+                "module": "chaostoxi.toxic.actions",
+                "func": "delete_toxic",
+                "arguments": {
+                    "for_proxy": "mongo_proxy",
+                    "toxic_name": "mongo_bw"
+                }
+            }
+        }
+    ]
+}
