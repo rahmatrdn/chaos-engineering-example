@@ -1,6 +1,13 @@
-# Chaos Engineering Special Academy
+# Chaos Engineering Example Implementation
 
 A comprehensive learning repository for **Chaos Engineering** practices using **ChaosToolkit** and **Toxiproxy** to build resilient distributed systems.
+
+## 👨🏻‍💻 Contributor
+| Name                      | Role(s)                | Email                       |
+|---------------------------|------------------------|-----------------------------|
+| Mochamad Faldhi Satria    | Initiator              | mochamad.satria@spesolution.com |
+| Achmad Usman              | Initiator              | achmad.usman@spesolution.com |
+| Rahmat Ramadhan Putra     | Initiator, Maintainer  | rahmatrdn.dev@gmail.com |
 
 ## 🎯 Overview
 
@@ -76,8 +83,8 @@ Before starting with chaos engineering experiments, ensure you have:
 
 1. **Clone the repository**
    ```bash
-   git clone https://gitlab.spesolution.net/data/rnd/special-academy-chaos-engineering.git
-   cd special-academy-chaos-engineering
+   git clone https://github.com/rahmatrdn/chaos-engineering-example.git
+   cd chaos-engineering-example
    ```
 
 2. **Set up ChaosToolkit environment**
@@ -92,7 +99,9 @@ Before starting with chaos engineering experiments, ensure you have:
    docker-compose up -d
    ```
 
-4. **Run your first experiment**
+4. **Run your first experiment** 
+
+   Open Terminal in Container chaostoolkit
    ```bash
    cd ../chaostoolkit
    chaos run experiments/01-jsonplaceholder/01.01-simple-hit-dummy-api.json
