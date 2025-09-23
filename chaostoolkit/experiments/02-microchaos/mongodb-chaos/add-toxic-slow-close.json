@@ -53,7 +53,7 @@
                 "arguments": {
                     "for_proxy": "mongo_proxy",
                     "toxic_name": "mongo_slow_close",
-                    "delay": 5000
+                    "delay": 50000
                 }
             },
             "pauses": {

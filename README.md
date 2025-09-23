@@ -37,7 +37,6 @@ spe-chaos-eng/
 │   ├── mysql/              # Database initialization scripts
 │   ├── docker-compose.yml  # Microservices stack
 │   └── seed.sh             # Toxiproxy proxy configuration
-├── assesment/              # Learning assessments and materials
 └── README.md               # This file
 ```
 
@@ -63,9 +62,6 @@ A complete microservices application for chaos testing:
 - **`notifier/`** - Event-driven notification service
 - **`mysql/`** - Database schema and initialization
 - **Supporting infrastructure** - Docker Compose, Toxiproxy configuration
-
-#### `assesment/` - Learning Materials
-Assessment materials and learning resources for the Special Academy program.
 
 ## 🛠️ Prerequisites
 

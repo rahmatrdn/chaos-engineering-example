@@ -73,6 +73,9 @@
                     "item": "kopi",
                     "qty": 1
                 }
+            },
+            "pauses": {
+                "after": 10
             }
         },
         {

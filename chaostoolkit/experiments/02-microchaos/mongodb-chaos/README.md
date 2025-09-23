@@ -15,6 +15,9 @@ chaos report --export-format=pdf reports/report-add-toxic-latency.json reports/r
 ### Toxic Bandwidth Degradation
 The "Toxic Bandwidth Degradation" experiment is designed to test the resilience of the MongoDB system by introducing artificial bandwidth degradation to its connections. By running the commands below, you can observe how the application responds to reduced network bandwidth and generate a PDF report of the experiment results.
 
+// TODO
+- create API get data yg besar dari mongodb
+
 ```bash
 -- Run and Generate Report
 chaos run add-toxic-bandwidth-degradation.json --journal-path=reports/report-add-toxic-bandwidth-degradation.json
@@ -56,8 +59,11 @@ chaos run add-toxic-slicer.json --journal-path=reports/report-add-toxic-slicer.j
 chaos report --export-format=pdf reports/report-add-toxic-slicer.json reports/report-add-toxic-slicer.pdf
 ```
 
-### Toxic Limiter
+### Toxic limit_data
 The "Toxic Limiter" experiment is designed to test the resilience of the MongoDB system by introducing artificial connection limiting (limiter toxic) to its connections. This simulates scenarios where the bandwidth or number of bytes allowed through the connection is restricted, potentially impacting the application's ability to communicate with the database efficiently. By running the commands below, you can observe how the application responds to connection limiting and generate a PDF report of the experiment results.
+
+// TODO
+- create API get data yg besar dari mongodb
 
 ```bash
 -- Run and Generate Report
