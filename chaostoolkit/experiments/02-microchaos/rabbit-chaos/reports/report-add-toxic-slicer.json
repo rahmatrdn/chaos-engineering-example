@@ -57,8 +57,8 @@
           "arguments": {
             "for_proxy": "rabbitmq_proxy",
             "toxic_name": "rabbitmq_slicer",
-            "average_size": 32,
-            "size_variation": 16,
+            "average_size": 50,
+            "size_variation": 10,
             "delay": 0
           }
         },
@@ -115,7 +115,7 @@
     ],
     "dry": null
   },
-  "start": "2025-09-22T09:29:51.282547+00:00",
+  "start": "2025-09-23T11:27:52.152219+00:00",
   "status": "completed",
   "deviated": false,
   "steady_states": {
@@ -139,16 +139,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:29:51 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:52 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:29:51.286492+00:00",
+          "start": "2025-09-23T11:27:52.154395+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:29:51.323082+00:00",
-          "duration": 0.03659,
+          "end": "2025-09-23T11:27:52.160184+00:00",
+          "duration": 0.005789,
           "tolerance_met": true
         },
         {
@@ -168,16 +168,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:29:51 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:52 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:29:51.325151+00:00",
+          "start": "2025-09-23T11:27:52.160965+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:29:51.350813+00:00",
-          "duration": 0.025662,
+          "end": "2025-09-23T11:27:52.165800+00:00",
+          "duration": 0.004835,
           "tolerance_met": true
         }
       ]
@@ -202,16 +202,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:29:52 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:53 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:29:52.581785+00:00",
+          "start": "2025-09-23T11:27:53.222823+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:29:52.591523+00:00",
-          "duration": 0.009738,
+          "end": "2025-09-23T11:27:53.227554+00:00",
+          "duration": 0.004731,
           "tolerance_met": true
         },
         {
@@ -231,16 +231,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 09:29:52 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:53 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T09:29:52.592932+00:00",
+          "start": "2025-09-23T11:27:53.228209+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T09:29:52.602879+00:00",
-          "duration": 0.009947,
+          "end": "2025-09-23T11:27:53.233803+00:00",
+          "duration": 0.005594,
           "tolerance_met": true
         }
       ]
@@ -259,8 +259,8 @@
           "arguments": {
             "for_proxy": "rabbitmq_proxy",
             "toxic_name": "rabbitmq_slicer",
-            "average_size": 32,
-            "size_variation": 16,
+            "average_size": 50,
+            "size_variation": 10,
             "delay": 0
           }
         },
@@ -269,10 +269,10 @@
         }
       },
       "output": true,
-      "start": "2025-09-22T09:29:51.354139+00:00",
+      "start": "2025-09-23T11:27:52.167140+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:29:51.366582+00:00",
-      "duration": 0.012443
+      "end": "2025-09-23T11:27:52.170246+00:00",
+      "duration": 0.003106
     },
     {
       "activity": {
@@ -296,16 +296,16 @@
       "output": {
         "status": 201,
         "headers": {
-          "Date": "Mon, 22 Sep 2025 09:29:52 GMT",
+          "Date": "Tue, 23 Sep 2025 11:27:53 GMT",
           "Content-Length": "28",
           "Content-Type": "text/plain; charset=utf-8"
         },
-        "body": "{\"status\":\"created\",\"id\":18}"
+        "body": "{\"status\":\"created\",\"id\":71}"
       },
-      "start": "2025-09-22T09:29:52.370209+00:00",
+      "start": "2025-09-23T11:27:53.173561+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:29:52.562938+00:00",
-      "duration": 0.192729
+      "end": "2025-09-23T11:27:53.209869+00:00",
+      "duration": 0.036308
     },
     {
       "activity": {
@@ -322,10 +322,10 @@
         }
       },
       "output": true,
-      "start": "2025-09-22T09:29:52.564303+00:00",
+      "start": "2025-09-23T11:27:53.212166+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:29:52.577994+00:00",
-      "duration": 0.013691
+      "end": "2025-09-23T11:27:53.220918+00:00",
+      "duration": 0.008752
     }
   ],
   "rollbacks": [
@@ -344,12 +344,12 @@
         }
       },
       "output": false,
-      "start": "2025-09-22T09:29:52.609351+00:00",
+      "start": "2025-09-23T11:27:53.235982+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T09:29:52.627448+00:00",
-      "duration": 0.018097
+      "end": "2025-09-23T11:27:53.239260+00:00",
+      "duration": 0.003278
     }
   ],
-  "end": "2025-09-22T09:29:52.628211+00:00",
-  "duration": 1.3491594791412354
+  "end": "2025-09-23T11:27:53.239576+00:00",
+  "duration": 1.0901479721069336
 }

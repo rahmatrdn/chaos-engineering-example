@@ -53,7 +53,7 @@
           "arguments": {
             "for_proxy": "rabbitmq_proxy",
             "toxic_name": "rabbitmq_bw",
-            "rate": 1
+            "rate": 2
           }
         },
         "pauses": {
@@ -109,7 +109,7 @@
     ],
     "dry": null
   },
-  "start": "2025-09-22T10:46:34.026750+00:00",
+  "start": "2025-09-23T11:27:18.249296+00:00",
   "status": "completed",
   "deviated": false,
   "steady_states": {
@@ -131,16 +131,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 10:46:34 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:18 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T10:46:34.028755+00:00",
+          "start": "2025-09-23T11:27:18.250857+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T10:46:34.035942+00:00",
-          "duration": 0.007187,
+          "end": "2025-09-23T11:27:18.265218+00:00",
+          "duration": 0.014361,
           "tolerance_met": true
         },
         {
@@ -158,16 +158,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 10:46:34 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:18 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T10:46:34.036728+00:00",
+          "start": "2025-09-23T11:27:18.265921+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T10:46:34.060609+00:00",
-          "duration": 0.023881,
+          "end": "2025-09-23T11:27:18.275152+00:00",
+          "duration": 0.009231,
           "tolerance_met": true
         }
       ]
@@ -190,16 +190,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 10:46:35 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:19 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T10:46:35.164393+00:00",
+          "start": "2025-09-23T11:27:19.332765+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T10:46:35.169034+00:00",
-          "duration": 0.004641,
+          "end": "2025-09-23T11:27:19.343848+00:00",
+          "duration": 0.011083,
           "tolerance_met": true
         },
         {
@@ -217,16 +217,16 @@
           "output": {
             "status": 200,
             "headers": {
-              "Date": "Mon, 22 Sep 2025 10:46:35 GMT",
+              "Date": "Tue, 23 Sep 2025 11:27:19 GMT",
               "Content-Length": "2",
               "Content-Type": "text/plain; charset=utf-8"
             },
             "body": "OK"
           },
-          "start": "2025-09-22T10:46:35.169879+00:00",
+          "start": "2025-09-23T11:27:19.346148+00:00",
           "status": "succeeded",
-          "end": "2025-09-22T10:46:35.182072+00:00",
-          "duration": 0.012193,
+          "end": "2025-09-23T11:27:19.354715+00:00",
+          "duration": 0.008567,
           "tolerance_met": true
         }
       ]
@@ -245,7 +245,7 @@
           "arguments": {
             "for_proxy": "rabbitmq_proxy",
             "toxic_name": "rabbitmq_bw",
-            "rate": 1
+            "rate": 2
           }
         },
         "pauses": {
@@ -253,10 +253,10 @@
         }
       },
       "output": true,
-      "start": "2025-09-22T10:46:34.062342+00:00",
+      "start": "2025-09-23T11:27:18.276419+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T10:46:34.068888+00:00",
-      "duration": 0.006546
+      "end": "2025-09-23T11:27:18.279398+00:00",
+      "duration": 0.002979
     },
     {
       "activity": {
@@ -280,16 +280,16 @@
       "output": {
         "status": 201,
         "headers": {
-          "Date": "Mon, 22 Sep 2025 10:46:35 GMT",
+          "Date": "Tue, 23 Sep 2025 11:27:19 GMT",
           "Content-Length": "28",
           "Content-Type": "text/plain; charset=utf-8"
         },
-        "body": "{\"status\":\"created\",\"id\":40}"
+        "body": "{\"status\":\"created\",\"id\":69}"
       },
-      "start": "2025-09-22T10:46:35.072104+00:00",
+      "start": "2025-09-23T11:27:19.281077+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T10:46:35.155517+00:00",
-      "duration": 0.083413
+      "end": "2025-09-23T11:27:19.324528+00:00",
+      "duration": 0.043451
     },
     {
       "activity": {
@@ -306,10 +306,10 @@
         }
       },
       "output": true,
-      "start": "2025-09-22T10:46:35.157146+00:00",
+      "start": "2025-09-23T11:27:19.325399+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T10:46:35.162550+00:00",
-      "duration": 0.005404
+      "end": "2025-09-23T11:27:19.330711+00:00",
+      "duration": 0.005312
     }
   ],
   "rollbacks": [
@@ -328,12 +328,12 @@
         }
       },
       "output": false,
-      "start": "2025-09-22T10:46:35.184398+00:00",
+      "start": "2025-09-23T11:27:19.357941+00:00",
       "status": "succeeded",
-      "end": "2025-09-22T10:46:35.187492+00:00",
-      "duration": 0.003094
+      "end": "2025-09-23T11:27:19.361266+00:00",
+      "duration": 0.003325
     }
   ],
-  "end": "2025-09-22T10:46:35.187890+00:00",
-  "duration": 1.1637234687805176
+  "end": "2025-09-23T11:27:19.361631+00:00",
+  "duration": 1.1142678260803223
 }
